@@ -1,0 +1,22 @@
+#!/usr/bin/env php
+<?php
+
+require __DIR__ . '/../vendor/autoload.php';
+
+use JamesHalsall\Licenser\Licenser;
+use JamesHalsall\Licenser\Command\LicenserCommand;
+use Symfony\Component\Console\Application;
+use Symfony\Component\Finder\Finder;
+
+$container = new Pimple();
+$container['licenser'] = function() {
+    return new Licenser(new Finder());
+};
+
+$container['command'] = function($c) {
+    return new LicenserCommand($c['licenser']);
+};
+
+$application = new Application('Licenser', Licenser::VERSION);
+$application->add($container['command']);
+$application->run();
