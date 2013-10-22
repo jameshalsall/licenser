@@ -6,12 +6,13 @@ Currently still in development, but will:
 
 - Accept a directory of source files to process (no support for single files yet)
 - Accept a file path containing your custom license doc block
-- Will not add license headers to files that have comments before the class declaration
+- Will not add license headers to files that have comments before the class declaration (class doc blocks are okay)
 
 ## Usage ##
 
-    composer install
-    ./bin/licenser run /path/to/source/files /path/to/license/file
+1. Add `"jameshalsall/licenser":"dev-master"` to your `composer.json` `require-dev`
+2. Run `composer update`
+3. Run `./bin/licenser run /path/to/source/files /path/to/license/file` to process source files
 
 ### Caution ###
 
