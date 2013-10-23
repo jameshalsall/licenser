@@ -6,6 +6,7 @@ use JamesHalsall\Licenser\Licenser;
 use Symfony\Component\Console\Command\Command;
 use Symfony\Component\Console\Input\InputArgument;
 use Symfony\Component\Console\Input\InputInterface;
+use Symfony\Component\Console\Input\InputOption;
 use Symfony\Component\Console\Output\OutputInterface;
 
 /**
@@ -55,7 +56,8 @@ class LicenserCommand extends Command
                  InputArgument::REQUIRED,
                 'The path to the file containing your license header doc block as it will appear when prepended to ' .
                 'your source files'
-             );
+             )
+             ->addOption('remove-existing', 'r', InputOption::VALUE_OPTIONAL, 'Remove existing license headers', false);
     }
 
     /**
@@ -74,6 +76,6 @@ class LicenserCommand extends Command
         $this->licenser->setOutputStream($output);
 
         $sources = $input->getArgument('sources');
-        $this->licenser->process($sources);
+        $this->licenser->process($sources, (boolean) $input->getOption('remove-existing'));
     }
 }

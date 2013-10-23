@@ -87,24 +87,27 @@ class Licenser
     /**
      * Processes a path and adds licenses
      *
-     * @param string $path The path to the files/directory
+     * @param string  $path           The path to the files/directory
+     * @param boolean $removeExisting True to remove existing license headers in files before adding
+     *                                new license (defaults to false)
      */
-    public function process($path)
+    public function process($path, $removeExisting = false)
     {
         $iterator = $this->finder->name('*.php')
                                  ->in(realpath($path));
 
         foreach ($iterator as $file) {
-            $this->processFile($file);
+            $this->processFile($file, $removeExisting);
         }
     }
 
     /**
      * Processes a single file
      *
-     * @param SplFileInfo $file The path to the file
+     * @param SplFileInfo $file           The path to the file
+     * @param boolean     $removeExisting True to remove existing license header before adding new one
      */
-    private function processFile(SplFileInfo $file)
+    private function processFile(SplFileInfo $file, $removeExisting)
     {
         if ($file->isDir()) {
             return;
@@ -124,18 +127,32 @@ class Licenser
             }
         }
 
-        if (false === $hasLicense) {
-            $this->log('Adding license header for "' . $file->getRealPath() . '"');
+        if (false === $hasLicense || true === $removeExisting) {
+            $this->removeExistingLicense($file);
+
+            $this->log(sprintf('Adding license header for "%s"', $file->getRealPath()));
+
             $license = explode(PHP_EOL, $this->licenseHeader);
             $license = array_map(function ($licenseLine) {
                 return ' * ' . $licenseLine;
             }, $license);
+
             $license = implode(PHP_EOL, $license);
             $content = preg_replace('/<\?php/', '<?php ' . PHP_EOL . PHP_EOL . '/*' . PHP_EOL . $license . PHP_EOL . ' */', $file->getContents(), 1);
             file_put_contents($file->getRealPath(), $content);
         } else {
-            $this->log('Skipping "' . $file->getRealPath() . '"');
+            $this->log(sprintf('Skipping "%s"', $file->getRealPath()));
         }
+    }
+
+    /**
+     * Removes an existing license header from a file
+     *
+     * @param SplFileInfo $file The file to remove the license header from
+     */
+    private function removeExistingLicense(SplFileInfo $file)
+    {
+        $this->log(sprintf('Remove existing license header for "%s"', $file->getRealPath()));
     }
 
     /**
