@@ -11,8 +11,6 @@ foreach ($autoloaders as $loader) {
         require $loader;
         break;
     }
-
-    die('You need to install your dependencies using "composer.phar install"' . PHP_EOL);
 }
 
 use JamesHalsall\Licenser\Licenser;
