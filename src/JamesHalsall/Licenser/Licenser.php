@@ -114,11 +114,12 @@ class Licenser
         }
 
         $tokens = token_get_all($file->getContents());
-        $hasLicense = false;
-        foreach ($tokens as $token) {
+        $licenseTokenIndex = null;
+
+        foreach ($tokens as $index => $token) {
 
             if ($token[0] === T_COMMENT) {
-                $hasLicense = true;
+                $licenseTokenIndex = $index;
             }
 
             // if we reach the class declaration then it does not have a license
@@ -127,9 +128,11 @@ class Licenser
             }
         }
 
-        if (false === $hasLicense || true === $removeExisting) {
-            $this->removeExistingLicense($file);
+        if (null !== $licenseTokenIndex && true === $removeExisting) {
+            $this->removeExistingLicense($file, $tokens[$licenseTokenIndex]);
+        }
 
+        if (null === $licenseTokenIndex || true === $removeExisting) {
             $this->log(sprintf('Adding license header for "%s"', $file->getRealPath()));
 
             $license = explode(PHP_EOL, $this->licenseHeader);
@@ -148,11 +151,28 @@ class Licenser
     /**
      * Removes an existing license header from a file
      *
-     * @param SplFileInfo $file The file to remove the license header from
+     * @param SplFileInfo $file   The file to remove the license header from
+     * @param array       $tokens License token information
      */
-    private function removeExistingLicense(SplFileInfo $file)
+    private function removeExistingLicense(SplFileInfo $file, array $token)
     {
-        $this->log(sprintf('Remove existing license header for "%s"', $file->getRealPath()));
+        $this->log(sprintf('Removing license header for "%s"', $file->getRealPath()));
+
+        $startLineNumber = $token[2];
+        $removalLength   = strlen($token[1]);
+
+        $content = $file->getContents();
+
+        // find start line in content
+        $currentLineNumber = 1;
+        $removalStart = 0;
+        while ($currentLineNumber < $startLineNumber) {
+            $removalStart = strpos($content, PHP_EOL, $removalStart) + strlen(PHP_EOL);
+            $currentLineNumber++;
+        }
+
+        $content = substr($content, 0, $removalStart) . substr($content, $removalStart + $removalLength);
+        file_put_contents($file->getRealPath(), $content);
     }
 
     /**
