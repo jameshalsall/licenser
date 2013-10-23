@@ -138,7 +138,7 @@ class Licenser
             }, $license);
 
             $license = implode(PHP_EOL, $license);
-            $content = preg_replace('/<\?php/', '<?php ' . PHP_EOL . PHP_EOL . '/*' . PHP_EOL . $license . PHP_EOL . ' */', $file->getContents(), 1);
+            $content = preg_replace('/<\?php/', '<?php' . PHP_EOL . PHP_EOL . '/*' . PHP_EOL . $license . PHP_EOL . ' */', $file->getContents(), 1);
             file_put_contents($file->getRealPath(), $content);
         } else {
             $this->log(sprintf('Skipping "%s"', $file->getRealPath()));
