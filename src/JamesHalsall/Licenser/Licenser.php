@@ -151,8 +151,8 @@ class Licenser
     /**
      * Removes an existing license header from a file
      *
-     * @param SplFileInfo $file   The file to remove the license header from
-     * @param array       $tokens License token information
+     * @param SplFileInfo $file  The file to remove the license header from
+     * @param array       $token License token information
      */
     private function removeExistingLicense(SplFileInfo $file, array $token)
     {
