@@ -117,7 +117,6 @@ class Licenser
         $licenseTokenIndex = null;
 
         foreach ($tokens as $index => $token) {
-
             if ($token[0] === T_COMMENT) {
                 $licenseTokenIndex = $index;
             }
@@ -129,7 +128,7 @@ class Licenser
         }
 
         if (null !== $licenseTokenIndex && true === $removeExisting) {
-            $this->removeExistingLicense($file, $tokens[$licenseTokenIndex]);
+            $this->removeExistingLicense($file, $tokens, $licenseTokenIndex);
         }
 
         if (null === $licenseTokenIndex || true === $removeExisting) {
@@ -151,27 +150,55 @@ class Licenser
     /**
      * Removes an existing license header from a file
      *
-     * @param SplFileInfo $file  The file to remove the license header from
-     * @param array       $token License token information
+     * @param SplFileInfo $file         The file to remove the license header from
+     * @param array       $tokens       File token information
+     * @param integer     $licenseIndex License token index
      */
-    private function removeExistingLicense(SplFileInfo $file, array $token)
+    private function removeExistingLicense(SplFileInfo $file, array $tokens, $licenseIndex)
     {
         $this->log(sprintf('Removing license header for "%s"', $file->getRealPath()));
 
-        $startLineNumber = $token[2];
-        $removalLength   = strlen($token[1]);
-
         $content = $file->getContents();
 
-        // find start line in content
-        $currentLineNumber = 1;
-        $removalStart = 0;
-        while ($currentLineNumber < $startLineNumber) {
-            $removalStart = strpos($content, PHP_EOL, $removalStart) + strlen(PHP_EOL);
-            $currentLineNumber++;
+        $removals = array();
+
+        // ignore index 0 (this should always be <?php tag) and find all whitespace tokens before license
+        for ($index = 1; $index <= $licenseIndex; $index++) {
+            $token = $tokens[$index];
+
+            if ($token[0] !== T_WHITESPACE && $token[0] !== T_COMMENT) {
+                continue;
+            }
+
+            $startLineNumber = $token[2];
+            $removalLength   = strlen($token[1]);
+
+            // find start line in content
+            $currentLineNumber = 1;
+            $removalStart = 0;
+
+            while ($currentLineNumber < $startLineNumber) {
+                $removalStart = strpos($content, PHP_EOL, $removalStart) + strlen(PHP_EOL);
+                $currentLineNumber++;
+            }
+
+            $removals[] = array(
+                'start'  => $removalStart,
+                'length' => $removalLength
+            );
         }
 
-        $content = substr($content, 0, $removalStart) . substr($content, $removalStart + $removalLength);
+        $removalOffset = 0;
+
+        foreach ($removals as $removal) {
+            $removalStart  = $removal['start'];
+            $removalLength = $removal['length'];
+
+            $content = substr($content, 0, $removalStart - $removalOffset) . substr($content, $removalStart + $removalLength);
+
+            $removalOffset += $removalLength;
+        }
+
         file_put_contents($file->getRealPath(), $content);
     }
 
