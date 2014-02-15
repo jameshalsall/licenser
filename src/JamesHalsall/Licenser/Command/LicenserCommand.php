@@ -57,7 +57,7 @@ class LicenserCommand extends Command
                 'The path to the file containing your license header doc block as it will appear when prepended to ' .
                 'your source files'
              )
-             ->addOption('remove-existing', 'r', InputOption::VALUE_OPTIONAL, 'Remove existing license headers', false);
+             ->addOption('remove-existing', 'r', InputOption::VALUE_NONE, 'Remove existing license headers');
     }
 
     /**
