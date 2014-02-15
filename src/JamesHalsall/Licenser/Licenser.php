@@ -3,6 +3,7 @@
 namespace JamesHalsall\Licenser;
 
 use JamesHalsall\ConstantResolver\ConstantResolver;
+use JamesHalsall\Licenser\Model\TokenRemoval;
 use Symfony\Component\Console\Output\OutputInterface;
 use Symfony\Component\Finder\Finder;
 use Symfony\Component\Finder\SplFileInfo;
@@ -182,21 +183,16 @@ class Licenser
                 $currentLineNumber++;
             }
 
-            $removals[] = array(
-                'start'  => $removalStart,
-                'length' => $removalLength
-            );
+            $removals[] = new TokenRemoval($removalStart, $removalLength);
         }
 
         $removalOffset = 0;
 
+        /** @var $removal TokenRemoval */
         foreach ($removals as $removal) {
-            $removalStart  = $removal['start'];
-            $removalLength = $removal['length'];
+            $content = substr($content, 0, $removal->getStart() - $removalOffset) . substr($content, $removal->getEnd());
 
-            $content = substr($content, 0, $removalStart - $removalOffset) . substr($content, $removalStart + $removalLength);
-
-            $removalOffset += $removalLength;
+            $removalOffset += $removal->getLength();
         }
 
         file_put_contents($file->getRealPath(), $content);
