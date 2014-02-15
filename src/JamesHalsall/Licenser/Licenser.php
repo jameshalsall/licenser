@@ -134,7 +134,7 @@ class Licenser
 
             $license = explode(PHP_EOL, $this->licenseHeader);
             $license = array_map(function ($licenseLine) {
-                return ' * ' . $licenseLine;
+                return rtrim(' * ' . $licenseLine);
             }, $license);
 
             $license = implode(PHP_EOL, $license);
