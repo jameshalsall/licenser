@@ -21,7 +21,7 @@ and very much in development.
 
 ## Roadmap ##
 
-- Add support for replacing an existing license
+- ~~Add support for replacing an existing license~~
 - Add built-in license options
 - Add dry-run option to see affected files before adding headers
 - Add support for processing single files
