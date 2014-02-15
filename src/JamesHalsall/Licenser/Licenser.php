@@ -3,6 +3,7 @@
 namespace JamesHalsall\Licenser;
 
 use JamesHalsall\ConstantResolver\ConstantResolver;
+use JamesHalsall\Licenser\Model\TokenRemoval;
 use Symfony\Component\Console\Output\OutputInterface;
 use Symfony\Component\Finder\Finder;
 use Symfony\Component\Finder\SplFileInfo;
@@ -114,11 +115,11 @@ class Licenser
         }
 
         $tokens = token_get_all($file->getContents());
-        $hasLicense = false;
-        foreach ($tokens as $token) {
+        $licenseTokenIndex = null;
 
+        foreach ($tokens as $index => $token) {
             if ($token[0] === T_COMMENT) {
-                $hasLicense = true;
+                $licenseTokenIndex = $index;
             }
 
             // if we reach the class declaration then it does not have a license
@@ -127,9 +128,11 @@ class Licenser
             }
         }
 
-        if (false === $hasLicense || true === $removeExisting) {
-            $this->removeExistingLicense($file);
+        if (null !== $licenseTokenIndex && true === $removeExisting) {
+            $this->removeExistingLicense($file, $tokens, $licenseTokenIndex);
+        }
 
+        if (null === $licenseTokenIndex || true === $removeExisting) {
             $this->log(sprintf('Adding license header for "%s"', $file->getRealPath()));
 
             $license = explode(PHP_EOL, $this->licenseHeader);
@@ -148,11 +151,51 @@ class Licenser
     /**
      * Removes an existing license header from a file
      *
-     * @param SplFileInfo $file The file to remove the license header from
+     * @param SplFileInfo $file         The file to remove the license header from
+     * @param array       $tokens       File token information
+     * @param integer     $licenseIndex License token index
      */
-    private function removeExistingLicense(SplFileInfo $file)
+    private function removeExistingLicense(SplFileInfo $file, array $tokens, $licenseIndex)
     {
-        $this->log(sprintf('Remove existing license header for "%s"', $file->getRealPath()));
+        $this->log(sprintf('Removing license header for "%s"', $file->getRealPath()));
+
+        $content = $file->getContents();
+
+        $removals = array();
+
+        // ignore index 0 (this should always be <?php tag) and find all whitespace tokens before license
+        for ($index = 1; $index <= $licenseIndex; $index++) {
+            $token = $tokens[$index];
+
+            if ($token[0] !== T_WHITESPACE && $token[0] !== T_COMMENT) {
+                continue;
+            }
+
+            $startLineNumber = $token[2];
+            $removalLength   = strlen($token[1]);
+
+            // find start line in content
+            $currentLineNumber = 1;
+            $removalStart = 0;
+
+            while ($currentLineNumber < $startLineNumber) {
+                $removalStart = strpos($content, PHP_EOL, $removalStart) + strlen(PHP_EOL);
+                $currentLineNumber++;
+            }
+
+            $removals[] = new TokenRemoval($removalStart, $removalLength);
+        }
+
+        $removalOffset = 0;
+
+        /** @var $removal TokenRemoval */
+        foreach ($removals as $removal) {
+            $content = substr($content, 0, $removal->getStart() - $removalOffset) . substr($content, $removal->getEnd());
+
+            $removalOffset += $removal->getLength();
+        }
+
+        file_put_contents($file->getRealPath(), $content);
     }
 
     /**
