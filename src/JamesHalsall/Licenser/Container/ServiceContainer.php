@@ -3,7 +3,9 @@
 namespace JamesHalsall\Licenser\Container;
 
 use JamesHalsall\Licenser\Command\LicenserCommand;
+use JamesHalsall\Licenser\Factory\LicenseHeaderFactory;
 use JamesHalsall\Licenser\Licenser;
+use Pimple\Container;
 use Symfony\Component\Finder\Finder;
 
 /**
@@ -12,7 +14,7 @@ use Symfony\Component\Finder\Finder;
  * @package JamesHalsall\Container
  * @author  James Halsall <james.t.halsall@googlemail.com>
  */
-final class ServiceContainer extends \Pimple
+final class ServiceContainer extends Container
 {
     /**
      * {@inheritDoc}
@@ -29,12 +31,21 @@ final class ServiceContainer extends \Pimple
      */
     private function setup()
     {
-        $this['licenser'] = function() {
+        $this['licenser'] = function () {
             return new Licenser(new Finder());
         };
 
-        $this['command'] = function($c) {
-            return new LicenserCommand($c['licenser']);
+        $this['command'] = function ($c) {
+            return new LicenserCommand($c['licenser'], $c['license_header_factory']);
+        };
+
+        $this['twig.templating'] = function () {
+            $loader = new \Twig_Loader_Filesystem(__DIR__ . '/../../../../licenses');
+            return new \Twig_Environment($loader);
+        };
+
+        $this['license_header_factory'] = function ($c) {
+            return new LicenseHeaderFactory($c['twig.templating']);
         };
     }
 }

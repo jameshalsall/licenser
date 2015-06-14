@@ -2,6 +2,7 @@
 
 namespace JamesHalsall\Licenser\Command;
 
+use JamesHalsall\Licenser\Factory\LicenseHeaderFactory;
 use JamesHalsall\Licenser\Licenser;
 use Symfony\Component\Console\Command\Command;
 use Symfony\Component\Console\Input\InputArgument;
@@ -28,13 +29,22 @@ class LicenserCommand extends Command
     private $licenser;
 
     /**
+     * The license header factory.
+     *
+     * @var LicenseHeaderFactory
+     */
+    private $licenseHeaderFactory;
+
+    /**
      * Constructor
      *
-     * @param Licenser $licenser The licenser utility
+     * @param Licenser             $licenser             The licenser utility
+     * @param LicenseHeaderFactory $licenseHeaderFactory The license header factory
      */
-    public function __construct(Licenser $licenser)
+    public function __construct(Licenser $licenser, LicenseHeaderFactory $licenseHeaderFactory)
     {
         $this->licenser = $licenser;
+        $this->licenseHeaderFactory = $licenseHeaderFactory;
 
         parent::__construct();
     }
@@ -54,8 +64,8 @@ class LicenserCommand extends Command
              ->addArgument(
                  'license',
                  InputArgument::REQUIRED,
-                'The path to the file containing your license header doc block as it will appear when prepended to ' .
-                'your source files'
+                'The name of a built in license or a path to the file containing your custom license header doc block ' .
+                'as it will appear when prepended to your source files'
              )
              ->addOption('remove-existing', 'r', InputOption::VALUE_NONE, 'Remove existing license headers');
     }
@@ -70,7 +80,13 @@ class LicenserCommand extends Command
      */
     protected function execute(InputInterface $input, OutputInterface $output)
     {
-        $licenseHeader = file_get_contents($input->getArgument('license'));
+        $license = $input->getArgument('license');
+
+        try {
+            $licenseHeader = $this->licenseHeaderFactory->createFromLicenseName($license);
+        } catch (\InvalidArgumentException $e) {
+            $licenseHeader = file_get_contents($license);
+        }
 
         $this->licenser->setLicenseHeader($licenseHeader);
         $this->licenser->setOutputStream($output);
