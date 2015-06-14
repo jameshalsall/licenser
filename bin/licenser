@@ -13,19 +13,11 @@ foreach ($autoloaders as $loader) {
     }
 }
 
+use JamesHalsall\Licenser\Container\ServiceContainer;
 use JamesHalsall\Licenser\Licenser;
-use JamesHalsall\Licenser\Command\LicenserCommand;
 use Symfony\Component\Console\Application;
-use Symfony\Component\Finder\Finder;
 
-$container = new Pimple();
-$container['licenser'] = function() {
-    return new Licenser(new Finder());
-};
-
-$container['command'] = function($c) {
-    return new LicenserCommand($c['licenser']);
-};
+$container = new ServiceContainer();
 
 $application = new Application('Licenser', Licenser::VERSION);
 $application->add($container['command']);
