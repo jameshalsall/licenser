@@ -2,12 +2,12 @@
     "name": "jameshalsall/licenser",
     "description": "Adds license headers to your source files",
     "require": {
-        "symfony/console": ">=2.4",
-        "symfony/finder": ">=2.4",
-        "pimple/pimple": ">=1.1"
+        "symfony/console": "~2.7",
+        "symfony/finder": "~2.7",
+        "pimple/pimple": "~1.1"
     },
     "require-dev": {
-        "phpunit/phpunit": "*"
+        "phpunit/phpunit": "~4.6"
     },
     "autoload": {
         "psr-0": {
@@ -23,6 +23,5 @@
     ],
     "bin": [
         "bin/licenser"
-    ],
-    "minimum-stability": "stable"
+    ]
 }
