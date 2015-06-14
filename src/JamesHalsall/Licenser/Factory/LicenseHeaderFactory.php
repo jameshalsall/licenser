@@ -30,16 +30,19 @@ class LicenseHeaderFactory
     /**
      * Creates a license header string from a license name
      *
-     * @param string $licenseName The license name
+     * @param string $licenseName  The license name
+     * @param array  $replacements Values to use replacing placeholders in the license header (indexed by their placeholder name)
      *
      * @throws \InvalidArgumentException If the license name doesn't exist
      *
      * @return string
      */
-    public function createFromLicenseName($licenseName)
+    public function createFromLicenseName($licenseName, array $replacements = array())
     {
+        $replacements['thisYear'] = date('Y');
+
         try {
-            return $this->twig->render($licenseName);
+            return $this->twig->render($licenseName, $replacements);
         } catch (\Twig_Error_Loader $e) {
             throw new \InvalidArgumentException('Invalid license name provided');
         }

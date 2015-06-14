@@ -15,14 +15,19 @@ class LicenseHeaderFactoryTest extends \PHPUnit_Framework_TestCase
     /**
      * @dataProvider getLicenseNameFixtures
      */
-    public function testCreateFromLicenseName($licenseName, $expectedThatLicenseExists = true)
+    public function testCreateFromLicenseName($licenseName, array $replacements = array(), $expectedThatLicenseExists = true)
     {
         if (false === $expectedThatLicenseExists) {
             $this->setExpectedException('\InvalidArgumentException');
             $this->getFactory()->createFromLicenseName($licenseName);
         } else {
-            $licenseHeader = $this->getFactory()->createFromLicenseName($licenseName);
+            $licenseHeader = $this->getFactory()->createFromLicenseName($licenseName, $replacements);
             $this->assertNotEmpty($licenseHeader);
+            $this->assertContains(date('Y'), $licenseHeader);
+
+            foreach ($replacements as $replacement) {
+                $this->assertContains($replacement, $licenseHeader);
+            }
         }
     }
 
@@ -31,7 +36,9 @@ class LicenseHeaderFactoryTest extends \PHPUnit_Framework_TestCase
         return array(
             array('mit'),
             array('apache-2.0'),
-            array('gplv3', false)
+            array('gplv3', array(), false),
+            array('mit', array('owners' => 'james.t.halsall@googlemail.com')),
+            array('mit', array('owners' => 'james.t.halsall@googlemail.com, james.t.halsall@gmail.com'))
         );
     }
 
