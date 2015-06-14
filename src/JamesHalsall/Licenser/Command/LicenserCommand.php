@@ -67,6 +67,14 @@ class LicenserCommand extends Command
                 'The name of a built in license or a path to the file containing your custom license header doc block ' .
                 'as it will appear when prepended to your source files'
              )
+             ->addOption(
+                 'owners',
+                 'o',
+                 InputOption::VALUE_OPTIONAL,
+                 'The owner email addresses of the licensed files. This is used in conjunction with the built-in ' .
+                 'license to add the email address(es) of the license(es) to the license header. Can be a comma ' .
+                 'separated list of email addresses or a single email address'
+             )
              ->addOption('remove-existing', 'r', InputOption::VALUE_NONE, 'Remove existing license headers');
     }
 
@@ -83,7 +91,10 @@ class LicenserCommand extends Command
         $license = $input->getArgument('license');
 
         try {
-            $licenseHeader = $this->licenseHeaderFactory->createFromLicenseName($license);
+            $licenseHeader = $this->licenseHeaderFactory->createFromLicenseName(
+                $license,
+                array('owners' => $input->getOption('owners'))
+            );
         } catch (\InvalidArgumentException $e) {
             $licenseHeader = file_get_contents($license);
         }

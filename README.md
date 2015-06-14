@@ -14,6 +14,26 @@ Currently still in development, but will:
 2. Run `composer update`
 3. Run `./bin/licenser run /path/to/source/files /path/to/license/file` to process source files
 
+## Using a built-in license type ##
+
+Licenser supports the following built-in licenses:
+
+- The Apache 2.0 license (referred to as `apache-2.0` in Licenser)
+- The MIT license (referred to as `mit` in Licenser)
+
+To use one of these built-in licenses you just replace the path to your custom licenses file with the name of the built-in
+license instead. For example if you wanted to use the MIT license then you would run something like:
+
+`./bin/licenser run /path/to/your/source/files mit`
+
+### Value replacement in built-in licenses
+
+When using a built-in license Licenser will replace special placeholders with custom values. The following twig placeholder
+values are used:
+
+- `thisYear` (always replaced with the current year)
+- `owner` (replaced with the value you specify on the CLI, or ignored if you don't specify a value)
+
 ### Caution ###
 
 It is recommended that you have your source files under version control when running the tool as it is still experimental
@@ -25,7 +45,7 @@ and very much in development.
 - Add built-in license options
 - Add dry-run option to see affected files before adding headers
 - Add support for processing single files
-- Add support for placeholders in license files (such as year, owner etc.)
+- Add support for placeholders in custom license files (such as year, owner etc.)
 
 ## Bug Reporting ##
 
