@@ -28,11 +28,16 @@ license instead. For example if you wanted to use the MIT license then you would
 
 ### Value replacement in built-in licenses
 
-When using a built-in license Licenser will replace special placeholders with custom values. The following twig placeholder
+When using a built-in license the Licenser will replace special placeholders with custom values. The following twig placeholder
 values are used:
 
 - `thisYear` (always replaced with the current year)
-- `owner` (replaced with the value you specify on the CLI, or ignored if you don't specify a value)
+- `owner` (replaced with the value you specify via the `--owners` option, or ignored if you don't specify a value)
+
+## Replacing an existing license ##
+
+You can tell the Licenser to replace an existing license header with a new one by just using the `--remove-existing` option
+when running the command. This will tell Licenser to remove any existing licenses and replace them with the new one generated.
 
 ### Caution ###
 
@@ -42,7 +47,7 @@ and very much in development.
 ## Roadmap ##
 
 - ~~Add support for replacing an existing license~~ (thanks to @markwilson)
-- Add built-in license options
+- ~~Add built-in license options~~
 - Add dry-run option to see affected files before adding headers
 - Add support for processing single files
 - Add support for placeholders in custom license files (such as year, owner etc.)
