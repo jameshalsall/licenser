@@ -25,7 +25,7 @@ and very much in development.
 - Add built-in license options
 - Add dry-run option to see affected files before adding headers
 - Add support for processing single files
-
+- Add support for placeholders in license files (such as year, owner etc.)
 
 ## Bug Reporting ##
 

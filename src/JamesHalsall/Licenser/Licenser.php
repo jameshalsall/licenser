@@ -2,7 +2,6 @@
 
 namespace JamesHalsall\Licenser;
 
-use JamesHalsall\ConstantResolver\ConstantResolver;
 use JamesHalsall\Licenser\Model\TokenRemoval;
 use Symfony\Component\Console\Output\OutputInterface;
 use Symfony\Component\Finder\Finder;
