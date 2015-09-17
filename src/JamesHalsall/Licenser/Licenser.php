@@ -93,8 +93,7 @@ class Licenser
      */
     public function process($path, $removeExisting = false)
     {
-        $iterator = $this->finder->name('*.php')
-                                 ->in(realpath($path));
+        $iterator = $this->getFiles($path);
 
         foreach ($iterator as $file) {
             $this->processFile($file, $removeExisting);
@@ -114,18 +113,8 @@ class Licenser
         }
 
         $tokens = token_get_all($file->getContents());
-        $licenseTokenIndex = null;
 
-        foreach ($tokens as $index => $token) {
-            if ($token[0] === T_COMMENT) {
-                $licenseTokenIndex = $index;
-            }
-
-            // if we reach the class declaration then it does not have a license
-            if ($token[0] === T_CLASS) {
-                break;
-            }
-        }
+        $licenseTokenIndex = $this->getLicensetokenIndex($tokens);
 
         if (null !== $licenseTokenIndex && true === $removeExisting) {
             $this->removeExistingLicense($file, $tokens, $licenseTokenIndex);
@@ -134,13 +123,8 @@ class Licenser
         if (null === $licenseTokenIndex || true === $removeExisting) {
             $this->log(sprintf('Adding license header for "%s"', $file->getRealPath()));
 
-            $license = explode(PHP_EOL, $this->licenseHeader);
-            $license = array_map(function ($licenseLine) {
-                return rtrim(' * ' . $licenseLine);
-            }, $license);
-
-            $license = implode(PHP_EOL, $license);
-            $content = preg_replace('/<\?php/', '<?php' . PHP_EOL . PHP_EOL . '/*' . PHP_EOL . $license . PHP_EOL . ' */', $file->getContents(), 1);
+            $license = $this->getLicenseAsComment();
+            $content = preg_replace('/<\?php/', '<?php' . PHP_EOL . PHP_EOL . $license , $file->getContents(), 1);
             file_put_contents($file->getRealPath(), $content);
         } else {
             $this->log(sprintf('Skipping "%s"', $file->getRealPath()));
@@ -209,5 +193,84 @@ class Licenser
         }
 
         $this->output->writeln($message);
+    }
+
+    /**
+     * @param string  $path The path to the files/directory
+     */
+    public function check($path)
+    {
+        foreach ( $this->getFiles($path) as $file) {
+            $this->checkFile($file);
+        }
+    }
+
+    /**
+     * Checks the header of 1 file
+     * @param SplFileInfo $file
+     */
+    private function checkFile(SplFileInfo $file)
+    {
+        $tokens = token_get_all($file->getContents());
+        $licenseTokenIndex = $this->getLicensetokenIndex($tokens);
+
+        if ($licenseTokenIndex === null) {
+            $this->log(sprintf('Missing license header in "%s"', $file->getRealPath()));
+        } elseif ($tokens[$licenseTokenIndex][1] != $this->getLicenseAsComment()) {
+            $this->log(sprintf('Different license header in "%s"', $file->getRealPath()));
+        }
+    }
+
+    /**
+     * @param $path
+     * @return SplFileInfo[]
+     */
+    private function getFiles($path)
+    {
+        if (is_file($path)) {
+            return [new SplFileInfo($path, '', '')];
+        } else {
+            $iterator = $this->finder->name('*.php')->in(realpath($path));
+        }
+        return $iterator;
+    }
+
+    /**
+     * returns the index of the first token that is a comment
+     *
+     * @param $tokens
+     * @return int|null the index of the token or null when no comment is found before the class declaration
+     */
+    private function getLicensetokenIndex($tokens)
+    {
+        $licenseTokenIndex = null;
+
+        foreach ($tokens as $index => $token) {
+            if ($token[0] === T_COMMENT) {
+                $licenseTokenIndex = $index;
+            }
+
+            // if we reach the class declaration then it does not have a license
+            if ($token[0] === T_CLASS) {
+                break;
+            }
+        }
+        return $licenseTokenIndex;
+    }
+
+    /**
+     * returns the license formatted as a comment
+     * @return string
+     */
+    private function getLicenseAsComment()
+    {
+        $license = explode(PHP_EOL, $this->licenseHeader);
+        $license = array_map(function ($licenseLine) {
+            return rtrim(' * ' . $licenseLine);
+        }, $license);
+
+        $license = implode(PHP_EOL, $license);
+        $license = '/*' . PHP_EOL . $license . PHP_EOL . ' */';
+        return $license;
     }
 }
