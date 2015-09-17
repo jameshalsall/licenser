@@ -48,8 +48,8 @@ and very much in development.
 
 - ~~Add support for replacing an existing license~~ (thanks to @markwilson)
 - ~~Add built-in license options~~
-- ~~Add dry-run option to see affected files before adding headers~~
-- Add support for processing single files
+- ~~Add dry-run option to see affected files before adding headers~~ (thanks to @unfunco)
+- ~~Add support for processing single files~~ (thanks to @jeroensmit)
 - ~~Add support for placeholders in custom license files (such as year, owner etc.)~~
 
 ## Bug Reporting ##

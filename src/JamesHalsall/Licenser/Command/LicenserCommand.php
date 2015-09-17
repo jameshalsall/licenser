@@ -55,38 +55,45 @@ class LicenserCommand extends Command
     protected function configure()
     {
         $this->setName('run')
-             ->setDescription('Runs the licenser against the given source path')
-             ->addArgument(
-                 'sources',
-                 InputArgument::REQUIRED,
-                 'The path to the source files that the licenser will process'
-             )
-             ->addArgument(
-                 'license',
-                 InputArgument::REQUIRED,
+            ->setDescription('Runs the licenser against the given source path')
+            ->addArgument(
+                'sources',
+                InputArgument::REQUIRED,
+                'The path to the source files that the licenser will process'
+            )
+            ->addArgument(
+                'license',
+                InputArgument::REQUIRED,
                 'The name of a built in license or a path to the file containing your custom license header doc block ' .
                 'as it will appear when prepended to your source files'
-             )
-             ->addOption(
+            )
+            ->addOption(
                  'owners',
                  'o',
                  InputOption::VALUE_OPTIONAL,
                  'The owner email addresses of the licensed files. This is used in conjunction with the built-in ' .
                  'license to add the email address(es) of the license(es) to the license header. Can be a comma ' .
                  'separated list of email addresses or a single email address'
-             )
-             ->addOption(
-                 'replace-existing',
-                 'r',
-                 InputOption::VALUE_NONE,
-                 'Replace existing license headers'
-             )
-             ->addOption(
-                 'dry-run',
-                 '',
-                 InputOption::VALUE_NONE,
-                 'If specified, the command will report a list of affected files but will make no modifications'
-             );
+            )
+            ->addOption(
+                'replace-existing',
+                'r',
+                InputOption::VALUE_NONE,
+                'Replace existing license headers'
+            )
+            ->addOption(
+                'dry-run',
+                '',
+                InputOption::VALUE_NONE,
+                'If specified, the command will report a list of affected files but will make no modifications'
+            )
+            ->addOption(
+                'check',
+                'c',
+                InputOption::VALUE_NONE,
+                'Checks if all files have the correct license information'
+            )
+        ;
     }
 
     /**
@@ -115,10 +122,14 @@ class LicenserCommand extends Command
 
         $sources = $input->getArgument('sources');
 
-        $this->licenser->process(
-            $sources,
-            (bool) $input->getOption('replace-existing'),
-            (bool) $input->getOption('dry-run')
-        );
+        if ($input->getOption('check')) {
+            $this->licenser->check($sources);
+        } else {
+            $this->licenser->process(
+                $sources,
+                (bool) $input->getOption('replace-existing'),
+                (bool) $input->getOption('dry-run')
+            );
+        }
     }
 }
