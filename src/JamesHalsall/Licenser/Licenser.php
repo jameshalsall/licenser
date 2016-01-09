@@ -87,17 +87,18 @@ class Licenser
     /**
      * Processes a path and adds licenses
      *
-     * @param string  $path           The path to the files/directory
-     * @param boolean $removeExisting True to remove existing license headers in files before adding
-     *                                new license (defaults to false)
+     * @param string $path           The path to the files/directory
+     * @param bool   $removeExisting True to remove existing license headers in files before adding
+     *                               new license (defaults to false)
+     * @param bool   $dryRun         True to report modified files and to not make any modifications
      */
-    public function process($path, $removeExisting = false)
+    public function process($path, $removeExisting = false, $dryRun = false)
     {
         $iterator = $this->finder->name('*.php')
                                  ->in(realpath($path));
 
         foreach ($iterator as $file) {
-            $this->processFile($file, $removeExisting);
+            $this->processFile($file, $removeExisting, $dryRun);
         }
     }
 
@@ -105,9 +106,10 @@ class Licenser
      * Processes a single file
      *
      * @param SplFileInfo $file           The path to the file
-     * @param boolean     $removeExisting True to remove existing license header before adding new one
+     * @param bool        $removeExisting True to remove existing license header before adding new one
+     * @param bool        $dryRun         True to report a modified file and to not make modifications
      */
-    private function processFile(SplFileInfo $file, $removeExisting)
+    private function processFile(SplFileInfo $file, $removeExisting, $dryRun)
     {
         if ($file->isDir()) {
             return;
@@ -128,11 +130,15 @@ class Licenser
         }
 
         if (null !== $licenseTokenIndex && true === $removeExisting) {
-            $this->removeExistingLicense($file, $tokens, $licenseTokenIndex);
+            $this->removeExistingLicense($file, $tokens, $licenseTokenIndex, $dryRun);
         }
 
         if (null === $licenseTokenIndex || true === $removeExisting) {
-            $this->log(sprintf('Adding license header for "%s"', $file->getRealPath()));
+            $this->log(sprintf('<fg=green>[+]</> Adding license header for <options=bold>%s</>', $file->getRealPath()));
+
+            if (true === $dryRun) {
+                return;
+            }
 
             $license = explode(PHP_EOL, $this->licenseHeader);
             $license = array_map(function ($licenseLine) {
@@ -143,7 +149,7 @@ class Licenser
             $content = preg_replace('/<\?php/', '<?php' . PHP_EOL . PHP_EOL . '/*' . PHP_EOL . $license . PHP_EOL . ' */', $file->getContents(), 1);
             file_put_contents($file->getRealPath(), $content);
         } else {
-            $this->log(sprintf('Skipping "%s"', $file->getRealPath()));
+            $this->log(sprintf('<fg=cyan>[S]</> Skipping <options=bold>%s</>', $file->getRealPath()));
         }
     }
 
@@ -153,10 +159,15 @@ class Licenser
      * @param SplFileInfo $file         The file to remove the license header from
      * @param array       $tokens       File token information
      * @param integer     $licenseIndex License token index
+     * @param bool        $dryRun       True to report a modified file and not to make modifications
      */
-    private function removeExistingLicense(SplFileInfo $file, array $tokens, $licenseIndex)
+    private function removeExistingLicense(SplFileInfo $file, array $tokens, $licenseIndex, $dryRun)
     {
-        $this->log(sprintf('Removing license header for "%s"', $file->getRealPath()));
+        $this->log(sprintf('<fg=red>[-]</> Removing license header for <options=bold>%s</>', $file->getRealPath()));
+
+        if (true === $dryRun) {
+            return;
+        }
 
         $content = $file->getContents();
 
