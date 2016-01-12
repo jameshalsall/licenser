@@ -75,7 +75,18 @@ class LicenserCommand extends Command
                  'license to add the email address(es) of the license(es) to the license header. Can be a comma ' .
                  'separated list of email addresses or a single email address'
              )
-             ->addOption('remove-existing', 'r', InputOption::VALUE_NONE, 'Remove existing license headers');
+             ->addOption(
+                 'remove-existing',
+                 'r',
+                 InputOption::VALUE_NONE,
+                 'Remove existing license headers'
+             )
+             ->addOption(
+                 'dry-run',
+                 '',
+                 InputOption::VALUE_NONE,
+                 'If specified, the command will report a list of affected files but will make no modifications'
+             );
     }
 
     /**
@@ -103,6 +114,11 @@ class LicenserCommand extends Command
         $this->licenser->setOutputStream($output);
 
         $sources = $input->getArgument('sources');
-        $this->licenser->process($sources, (boolean) $input->getOption('remove-existing'));
+
+        $this->licenser->process(
+            $sources,
+            (bool) $input->getOption('remove-existing'),
+            (bool) $input->getOption('dry-run')
+        );
     }
 }
