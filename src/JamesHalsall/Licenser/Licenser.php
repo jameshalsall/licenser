@@ -87,29 +87,28 @@ class Licenser
     /**
      * Processes a path and adds licenses
      *
-     * @param string $path           The path to the files/directory
-     * @param bool   $removeExisting True to remove existing license headers in files before adding
-     *                               new license (defaults to false)
-     * @param bool   $dryRun         True to report modified files and to not make any modifications
+     * @param string $path            The path to the files/directory
+     * @param bool   $replaceExisting True to replace existing license headers
+     * @param bool   $dryRun          True to report modified files and to not make any modifications
      */
-    public function process($path, $removeExisting = false, $dryRun = false)
+    public function process($path, $replaceExisting = false, $dryRun = false)
     {
         $iterator = $this->finder->name('*.php')
                                  ->in(realpath($path));
 
         foreach ($iterator as $file) {
-            $this->processFile($file, $removeExisting, $dryRun);
+            $this->processFile($file, $replaceExisting, $dryRun);
         }
     }
 
     /**
      * Processes a single file
      *
-     * @param SplFileInfo $file           The path to the file
-     * @param bool        $removeExisting True to remove existing license header before adding new one
-     * @param bool        $dryRun         True to report a modified file and to not make modifications
+     * @param SplFileInfo $file            The path to the file
+     * @param bool        $replaceExisting True to replace existing license header
+     * @param bool        $dryRun          True to report a modified file and to not make modifications
      */
-    private function processFile(SplFileInfo $file, $removeExisting, $dryRun)
+    private function processFile(SplFileInfo $file, $replaceExisting, $dryRun)
     {
         if ($file->isDir()) {
             return;
@@ -129,11 +128,11 @@ class Licenser
             }
         }
 
-        if (null !== $licenseTokenIndex && true === $removeExisting) {
+        if (null !== $licenseTokenIndex && true === $replaceExisting) {
             $this->removeExistingLicense($file, $tokens, $licenseTokenIndex, $dryRun);
         }
 
-        if (null === $licenseTokenIndex || true === $removeExisting) {
+        if (null === $licenseTokenIndex || true === $replaceExisting) {
             $this->log(sprintf('<fg=green>[+]</> Adding license header for <options=bold>%s</>', $file->getRealPath()));
 
             if (true === $dryRun) {

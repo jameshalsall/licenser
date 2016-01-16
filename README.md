@@ -36,7 +36,7 @@ values are used:
 
 ## Replacing an existing license ##
 
-You can tell the Licenser to replace an existing license header with a new one by just using the `--remove-existing` option
+You can tell the Licenser to replace an existing license header with a new one by using the `--replace-existing` option
 when running the command. This will tell Licenser to remove any existing licenses and replace them with the new one generated.
 
 ### Caution ###

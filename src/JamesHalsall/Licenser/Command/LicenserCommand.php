@@ -76,10 +76,10 @@ class LicenserCommand extends Command
                  'separated list of email addresses or a single email address'
              )
              ->addOption(
-                 'remove-existing',
+                 'replace-existing',
                  'r',
                  InputOption::VALUE_NONE,
-                 'Remove existing license headers'
+                 'Replace existing license headers'
              )
              ->addOption(
                  'dry-run',
@@ -117,7 +117,7 @@ class LicenserCommand extends Command
 
         $this->licenser->process(
             $sources,
-            (bool) $input->getOption('remove-existing'),
+            (bool) $input->getOption('replace-existing'),
             (bool) $input->getOption('dry-run')
         );
     }
