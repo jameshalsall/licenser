@@ -45,7 +45,7 @@ final class ServiceContainer extends Container
         };
 
         $this['twig.templating'] = function () {
-            $loader = new \Twig_Loader_Filesystem(__DIR__ . '/../../../../licenses');
+            $loader = new \Twig_Loader_Filesystem(__DIR__ . '/../../licenses');
             return new \Twig_Environment($loader);
         };
 

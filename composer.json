@@ -11,9 +11,11 @@
         "phpunit/phpunit": "~4.6"
     },
     "autoload": {
-        "psr-0": {
-            "JamesHalsall\\": "src/"
-        },
+        "psr-4": {
+            "JamesHalsall\\Licenser\\": "src/"
+        }
+    },
+    "autoload-dev": {
         "psr-4": {
             "JamesHalsall\\Licenser\\Tests\\": "tests/Licenser"
         }
