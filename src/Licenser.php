@@ -39,7 +39,7 @@ use Symfony\Component\Finder\SplFileInfo;
  */
 class Licenser
 {
-    const VERSION = '0.4.0';
+    const VERSION = '0.4.1';
 
     /**
      * The finder component
