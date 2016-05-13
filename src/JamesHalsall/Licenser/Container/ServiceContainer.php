@@ -2,6 +2,7 @@
 
 namespace JamesHalsall\Licenser\Container;
 
+use JamesHalsall\Licenser\Command\CheckCommand;
 use JamesHalsall\Licenser\Command\LicenserCommand;
 use JamesHalsall\Licenser\Factory\LicenseHeaderFactory;
 use JamesHalsall\Licenser\Licenser;
@@ -35,8 +36,12 @@ final class ServiceContainer extends Container
             return new Licenser(new Finder());
         };
 
-        $this['command'] = function ($c) {
+        $this['command.licenser'] = function ($c) {
             return new LicenserCommand($c['licenser'], $c['license_header_factory']);
+        };
+
+        $this['command.check'] = function ($c) {
+            return new CheckCommand($c['licenser'], $c['license_header_factory']);
         };
 
         $this['twig.templating'] = function () {

@@ -20,5 +20,6 @@ use Symfony\Component\Console\Application;
 $container = new ServiceContainer();
 
 $application = new Application('Licenser', Licenser::VERSION);
-$application->add($container['command']);
+$application->add($container['command.licenser']);
+$application->add($container['command.check']);
 $application->run();

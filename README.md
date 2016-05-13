@@ -24,7 +24,7 @@ Licenser supports the following built-in licenses:
 To use one of these built-in licenses you just replace the path to your custom licenses file with the name of the built-in
 license instead. For example if you wanted to use the MIT license then you would run something like:
 
-`./bin/licenser run /path/to/your/source/files mit`
+    ./bin/licenser run /path/to/files mit --owners="steve@apple.com tim@apple.com"
 
 ### Value replacement in built-in licenses
 
@@ -38,6 +38,13 @@ values are used:
 
 You can tell the Licenser to replace an existing license header with a new one by using the `--replace-existing` option
 when running the command. This will tell Licenser to remove any existing licenses and replace them with the new one generated.
+
+## Checking files for correct license ##
+
+Licenser also allows you to check your source files for correct license information. It will warn you if there are any
+source files that do not have a license header that matches the options you provide.
+
+    ./bin/licenser check /path/to/files mit --owners=steve@apple.com
 
 ### Caution ###
 
