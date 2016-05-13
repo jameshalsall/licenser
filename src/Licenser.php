@@ -103,7 +103,7 @@ class Licenser
     /**
      * Checks a single file path
      *
-     * @param string  $path The path to the files/directory
+     * @param string $path The path to the files/directory
      */
     public function check($path)
     {
@@ -141,7 +141,7 @@ class Licenser
             }
 
             $license = $this->getLicenseAsComment();
-            $content = preg_replace('/<\?php/', '<?php' . PHP_EOL . PHP_EOL . $license , $file->getContents(), 1);
+            $content = preg_replace('/<\?php/', '<?php' . PHP_EOL . PHP_EOL . $license, $file->getContents(), 1);
             file_put_contents($file->getRealPath(), $content);
         } else {
             $this->log(sprintf('<fg=cyan>[S]</> Skipping <options=bold>%s</>', $file->getRealPath()));
