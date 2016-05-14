@@ -4,9 +4,11 @@ Automates the prepending of a license header doc block to your directory(ies) of
 
 Currently still in development, but will:
 
-- Accept a directory of source files to process (no support for single files yet)
+- Accept a directory of source files or a path to a single source file to process 
 - Accept a file path containing your custom license doc block
-- Will not add license headers to files that have comments before the class declaration (class doc blocks are okay)
+- Will not add license headers to files that have comments before the class declaration (class doc blocks are okay) unless
+you explicitly tell it to
+- Can check your source files for the correct license information
 
 ## Usage ##
 
